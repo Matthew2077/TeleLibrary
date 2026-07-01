@@ -1,0 +1,16 @@
+ALL COMMANDS:
+/start
+introduction to the bot capabilities, functions etc
+
+/browse
+see all public notes, up tp 10 at time, more if possibile.
+
+/new_note
+Serie of inputs that allow the user to create a new note from scratch. 
+
+/login - /logout
+authentication to the librarytools server
+
+/mynotes
+allow the user to see his own note. It must be logged in 
+
