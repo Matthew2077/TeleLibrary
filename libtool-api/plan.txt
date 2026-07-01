@@ -1,0 +1,28 @@
+LibraryTools Endpoints:
+GET /LibraryTools/v1/notes/{note_id}
+PATCH /LibraryTools/v1/notes/{note_id}
+DELETE /LibraryTools/v1/notes/{note_id}
+GET /LibraryTools/v1/notes/
+POST /LibraryTools/v1/notes/
+
+GET /LibraryTools/v1/tags/{tag_id}
+PATCH /LibraryTools/v1/tags/{tag_id}
+DELETE /LibraryTools/v1/tags/{tag_id}
+GET /LibraryTools/v1/tags/
+POST /LibraryTools/v1/tags/
+
+GET /LibraryTools/v1/categories/{category_id}
+PATCH /LibraryTools/v1/categories/{category_id}
+DELETE /LibraryTools/v1/categories/{category_id}
+GET /LibraryTools/v1/categories/
+POST /LibraryTools/v1/categories/
+
+GET /LibraryTools/v1/users/{user_id}
+PATCH /LibraryTools/v1/users/{user_id}
+DELETE /LibraryTools/v1/users/{user_id}
+GET /LibraryTools/v1/users/
+POST /LibraryTools/v1/users/
+
+
+
+Here i need to be able to call all the Endpoints

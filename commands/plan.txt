@@ -14,3 +14,5 @@ authentication to the librarytools server
 /mynotes
 allow the user to see his own note. It must be logged in 
 
+command layer is superior to libtool-api in this bot. 
+Here is where commands is created, not where LibraryTools stuff are being did.
