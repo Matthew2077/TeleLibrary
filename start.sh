@@ -1,3 +1,3 @@
 source .venv/bin/activate
-export BOT_TOKEN="8394992919:AAF1ksqJfhMwy-9e0es7Q0I1wZ09W2y-2rE"
+export BOT_TOKEN="8344998031:AAG3K25WjjLwak5TnDwGLqJ1Xrl2uDLkbRQ"
 python3 bot.py
