@@ -80,7 +80,7 @@ view_conv_handler = ConversationHandler(
 STATUS_CREATE_TITLE = 1 # primo passaggio
 STATUS_CREATE_CONTENT = 2 # secondo passaggio
 
-async def cn_title(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def cn_title(Eupdate: Update, context: ContextTypes.DEFAULT_TYP):
     await update.message.reply_text("Benvenuto nella procedura per creare una nuova nota pubblica. \nTi chiedero' una serie di parametri per creare la nota, perfavore rispondi ad ogni domanda. \n\nScrivi il titolo titolo della nuova nota:")
     return STATUS_CREATE_TITLE
 
