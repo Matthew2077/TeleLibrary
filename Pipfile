@@ -8,6 +8,7 @@ sqlalchemy = ">=2.0"
 python-telegram-bot = "*"
 requests = "*"
 aiogram = "*"
+dotenv = "*"
 
 [dev-packages]
 

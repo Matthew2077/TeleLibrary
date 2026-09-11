@@ -6,6 +6,11 @@ from telegram.ext import (
 )
 import logging
 from commands.note import view_conv_handler, create_conv_handler
+import os
+from dotenv import load_dotenv
+
+
+
 
 # LOGGING SET UP
 logging.basicConfig(
@@ -24,10 +29,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "Developer: https://github.com/Matthew2077"
     )
 
+    
+load_dotenv() # carica le variabili
 
 # BASIC MAIN
 def main() -> None:
-    token = '8344998031:AAG3K25WjjLwak5TnDwGLqJ1Xrl2uDLkbRQ'
+    
+    token = os.getenv("BOT_TOKEN")
+    print(token)
+
     if not token:
         raise RuntimeError(
             "Variabile d'ambiente BOT_TOKEN non impostata. "
