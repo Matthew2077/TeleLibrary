@@ -1,4 +1,5 @@
 from libtoolapi.note import read_note
+from libtoolapi.category import read_all_categories
 import json
 from telegram import Update
 from telegram.ext import (
@@ -79,6 +80,7 @@ view_conv_handler = ConversationHandler(
 # INDICA I PASSAGGI
 STATUS_CREATE_TITLE = 1 # primo passaggio
 STATUS_CREATE_CONTENT = 2 # secondo passaggio
+STATUS_CREATE_CATEGORY = 3 
 
 async def cn_title(update: Update, context: ContextTypes.DEFAULT_TYP):
     await update.message.reply_text("Benvenuto nella procedura per creare una nuova nota pubblica. \nTi chiedero' una serie di parametri per creare la nota, perfavore rispondi ad ogni domanda. \n\nScrivi il titolo titolo della nuova nota:")
@@ -89,9 +91,25 @@ async def cn_content(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Inserisci il contenuto testuale della nota (no immagini): ")
     return STATUS_CREATE_CONTENT
 
+async def cn_category(update: Update, context: ContextTypes.DEFAULT_TYP):
+    context.user_data["content"] = update.message.text
+
+    # ottieni tutte le categorie
+    categories = read_all_categories()
+    cat_data = json.loads(categories.content.decode('utf-8'))
+    cat_list = []
+
+    for n in cat_data:
+        item = n['name']
+        print(item)
+        cat_list.append(item)
+
+    await update.message.reply_text(f"Tutte le categorie disponibili: {cat_list} \nInserisci il nome di una categoria valida: ")
+    return STATUS_CREATE_CATEGORY
+
 async def create_note_exec(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.user_data["content"] = update.message.text # context si porta dietro anche title e content
-    await update.message.reply_text(f"Titolo: {context.user_data['title']}\nContenuto: {context.user_data['content']}")
+    context.user_data["category"] = update.message.text 
+    await update.message.reply_text(f"Titolo: {context.user_data['title']}\nContenuto: {context.user_data['content']}\nCategoria: {context.user_data['category']}")
     return ConversationHandler.END
 
 
@@ -100,7 +118,9 @@ create_conv_handler = ConversationHandler(
     entry_points=[CommandHandler("create", cn_title)],
     states={
         STATUS_CREATE_TITLE:   [MessageHandler(filters.TEXT & ~filters.COMMAND, cn_content)],
-        STATUS_CREATE_CONTENT: [MessageHandler(filters.TEXT & ~filters.COMMAND, create_note_exec)],
+        STATUS_CREATE_CONTENT: [MessageHandler(filters.TEXT & ~filters.COMMAND, cn_category)],
+        STATUS_CREATE_CATEGORY: [MessageHandler(filters.TEXT & ~filters.COMMAND, create_note_exec)],
+                
     },
     fallbacks=[CommandHandler("cancel", cancel)],
 )

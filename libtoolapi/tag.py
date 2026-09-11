@@ -1,5 +1,4 @@
 import requests
-from exceptions import NotFoundError, AppError
 import logging
 logger = logging.getLogger(__name__)
 

@@ -29,14 +29,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "Developer: https://github.com/Matthew2077"
     )
 
-    
+
 load_dotenv() # carica le variabili
 
 # BASIC MAIN
 def main() -> None:
     
     token = os.getenv("BOT_TOKEN")
-    print(token)
 
     if not token:
         raise RuntimeError(

@@ -1,6 +1,6 @@
 import requests
-from exceptions import NotFoundError, AppError
 import logging
+import json
 logger = logging.getLogger(__name__)
 
 
@@ -15,6 +15,7 @@ def read_category(id: int):
 
         # Send request
         response = requests.get(endpoint)
+
         if response.status_code == 404:
             raise ValueError("qualcosa è andato storto")
     
@@ -31,17 +32,17 @@ def read_all_categories():
         # Send request
         response = requests.get(url)
         if response.status_code == 404:
-            raise NotFoundError(f"Nothing found here")
+            raise Exception(f"Nothing found here")
         
     except Exception as e:
         logger.error(f"error: {e}", exc_info=True)
-        raise AppError("Internal server error")
+        raise Exception("Internal server error")
     return response
     
 
-leggi = read_category(1)
-print(leggi.content)
+# leggi = read_category(1)
+# print(leggi.content)
 
-leggi_tutto = read_all_categories()
-print(leggi_tutto.content)
+# leggi_tutto = read_all_categories()
+# print(leggi_tutto.content)
 
