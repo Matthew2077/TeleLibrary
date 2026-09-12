@@ -15,6 +15,7 @@ def read_category(id: int):
 
         # Send request
         response = requests.get(endpoint)
+        r = json.loads(response.content.decode('utf-8'))
 
         if response.status_code == 404:
             raise ValueError("qualcosa è andato storto")
@@ -22,7 +23,7 @@ def read_category(id: int):
     except Exception as e:
         logger.error(f"error: {e}", exc_info=True)
         raise Exception("errore generico")
-    return response
+    return r
 
 def read_all_categories():
     try:
@@ -31,13 +32,14 @@ def read_all_categories():
 
         # Send request
         response = requests.get(url)
+        r = json.loads(response.content.decode('utf-8'))
         if response.status_code == 404:
             raise Exception(f"Nothing found here")
         
     except Exception as e:
         logger.error(f"error: {e}", exc_info=True)
         raise Exception("Internal server error")
-    return response
+    return r
     
 
 # leggi = read_category(1)

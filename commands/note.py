@@ -1,5 +1,6 @@
 from libtoolapi.note import read_note
 from libtoolapi.category import read_all_categories
+from libtoolapi.tag import read_all_tags
 import json
 from telegram import Update
 from telegram.ext import (
@@ -14,11 +15,11 @@ from telegram.ext import (
 # COMANDO LEGGI NOTA
 STATUS_VIEW_ID = 1 # stato dove il bot aspetta l'utente che scriva l'id
 
-async def view_note_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def view_note_start(update: Update, context: ContextTypes.DEFAULT_TYPEE):
     await update.message.reply_text("Perfavore inserisci l'ID della nota che desideri visualizzare:")
     return STATUS_VIEW_ID
 
-async def view_note_exec(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def view_note_exec(update: Update, context: ContextTypes.DEFAULT_TYPEE):
     user_input = update.message.text
 
     if not user_input.isdigit(): # qui inserire una funzione adatta poi. 
@@ -27,9 +28,7 @@ async def view_note_exec(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     note_id = int(user_input)
 
-    note = read_note(note_id)
-    # decodifica dati (sono bytes)
-    note_data = json.loads(note.content.decode('utf-8'))
+    note_data = read_note(note_id)
 
     if note_data is None:
         await update.message.reply_text(f"❌ Nessuna nota trovata con ID {note_id}.")
@@ -51,7 +50,7 @@ async def view_note_exec(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 # funzione usata da tutti qui, il cancel. 
-async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPEE):
     await update.message.reply_text("Operazione annullata.")
     return ConversationHandler.END
 
@@ -81,35 +80,69 @@ view_conv_handler = ConversationHandler(
 STATUS_CREATE_TITLE = 1 # primo passaggio
 STATUS_CREATE_CONTENT = 2 # secondo passaggio
 STATUS_CREATE_CATEGORY = 3 
+STATUS_CREATE_TAGS = 4
 
-async def cn_title(update: Update, context: ContextTypes.DEFAULT_TYP):
-    await update.message.reply_text("Benvenuto nella procedura per creare una nuova nota pubblica. \nTi chiedero' una serie di parametri per creare la nota, perfavore rispondi ad ogni domanda. \n\nScrivi il titolo titolo della nuova nota:")
+async def cn_title(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("""
+    Benvenuto nella procedura per creare una nuova nota pubblica.
+    Ti chiedero' una serie di parametri per creare la nota, perfavore rispondi ad ogni domanda.
+    \nScrivi il titolo della nuova nota:""")
+
     return STATUS_CREATE_TITLE
 
-async def cn_content(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def cn_content(update: Update, context: ContextTypes.DEFAULT_TYPEE):
     context.user_data["title"] = update.message.text  # salva la risposta precedente
-    await update.message.reply_text("Inserisci il contenuto testuale della nota (no immagini): ")
+    await update.message.reply_text("""Inserisci il contenuto testuale della nota. 
+    Puoi scrivere fino a 1000 caratteri, immagini non saranno salvate, links si. """)
     return STATUS_CREATE_CONTENT
 
-async def cn_category(update: Update, context: ContextTypes.DEFAULT_TYP):
+async def cn_category(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["content"] = update.message.text
 
     # ottieni tutte le categorie
-    categories = read_all_categories()
-    cat_data = json.loads(categories.content.decode('utf-8'))
+    cat_data = read_all_categories()
     cat_list = []
 
     for n in cat_data:
         item = n['name']
-        print(item)
+        #print(item)
         cat_list.append(item)
 
     await update.message.reply_text(f"Tutte le categorie disponibili: {cat_list} \nInserisci il nome di una categoria valida: ")
     return STATUS_CREATE_CATEGORY
 
-async def create_note_exec(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.user_data["category"] = update.message.text 
-    await update.message.reply_text(f"Titolo: {context.user_data['title']}\nContenuto: {context.user_data['content']}\nCategoria: {context.user_data['category']}")
+async def cn_tags(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["category"] = update.message.text
+
+    #ottieni tutti i tags disponibil:
+    tag_data = read_all_tags()
+    tags_list = []
+    
+    for n in tag_data:
+        item = n['name']
+        #print(item)
+        tags_list.append(item)
+
+    await update.message.reply_text(f"""Tutti i Tags disponibili: {tags_list} Perfavore inserisci il nome di un tag valido.
+    \nNB: Sii preciso, i tags sono permalosi (sono case sensitive).
+       """)
+
+    #print(f"SHOW ALL TAGS----------: {tags_list}")
+    return STATUS_CREATE_TAGS
+
+async def create_note_exec(update: Update, context: ContextTypes.DEFAULT_TYPEE):
+    context.user_data["tags"] = update.message.text #tags
+
+    #print(f"USER DATA HERE-------:{context.user_data}")
+
+    # verifica dei dati:
+    # qui prossimamente
+    await update.message.reply_text(f"""
+    Titolo: {context.user_data['title']}
+    \nContenuto: {context.user_data['content']}
+    \nCategoria: {context.user_data['category']}
+    \nTags: {context.user_data['tags']}
+""")
     return ConversationHandler.END
 
 
@@ -119,7 +152,8 @@ create_conv_handler = ConversationHandler(
     states={
         STATUS_CREATE_TITLE:   [MessageHandler(filters.TEXT & ~filters.COMMAND, cn_content)],
         STATUS_CREATE_CONTENT: [MessageHandler(filters.TEXT & ~filters.COMMAND, cn_category)],
-        STATUS_CREATE_CATEGORY: [MessageHandler(filters.TEXT & ~filters.COMMAND, create_note_exec)],
+        STATUS_CREATE_CATEGORY: [MessageHandler(filters.TEXT & ~filters.COMMAND, cn_tags)], # cn_tags
+        STATUS_CREATE_TAGS: [MessageHandler(filters.TEXT & ~filters.COMMAND, create_note_exec)],
                 
     },
     fallbacks=[CommandHandler("cancel", cancel)],

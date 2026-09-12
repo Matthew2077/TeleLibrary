@@ -1,5 +1,6 @@
 import requests
 import logging
+import json
 logger = logging.getLogger(__name__)
 
 
@@ -14,13 +15,15 @@ def read_tag(id: int):
 
         # Send request
         response = requests.get(endpoint)
+        r = json.loads(response.content.decode('utf-8'))
+
         if response.status_code == 404:
             raise ValueError("qualcosa è andato storto")
     
     except Exception as e:
         logger.error(f"error: {e}", exc_info=True)
         raise Exception("errore generico")
-    return response
+    return r
 
 def read_all_tags():
     try:
@@ -29,18 +32,19 @@ def read_all_tags():
 
         # Send request
         response = requests.get(url)
+        r = json.loads(response.content.decode('utf-8'))
         if response.status_code == 404:
-            raise NotFoundError(f"Nothing found here")
+            raise Exception(f"Nothing found here")
         
     except Exception as e:
         logger.error(f"error: {e}", exc_info=True)
-        raise AppError("Internal server error")
-    return response
+        raise Exception("Internal server error")
+    return r
     
 
-leggi = read_tag(1)
-print(leggi.content)
+#leggi = read_tag(1)
+#print(leggi.content)
 
-leggi_tutto = read_all_tags()
-print(leggi_tutto.content)
+#leggi_tutto = read_all_tags()
+#print(leggi_tutto.content)
 
