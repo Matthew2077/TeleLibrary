@@ -5,7 +5,7 @@ from telegram.ext import (
     ContextTypes,
 )
 import logging
-from commands.note import view_conv_handler, create_conv_handler
+from commands.note import view_conv_handler, view_all_notes, create_conv_handler
 import os
 from dotenv import load_dotenv
 
@@ -47,6 +47,7 @@ def main() -> None:
     app.add_handler(CommandHandler("start", start))
     app.add_handler(view_conv_handler)
     app.add_handler(create_conv_handler)
+    app.add_handler(CommandHandler("view_all", view_all_notes))
 
 
     logger.info("Bot avviato. In ascolto di aggiornamenti...")

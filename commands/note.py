@@ -1,4 +1,4 @@
-from libtoolapi.note import read_note
+from libtoolapi.note import read_note, read_all_notes
 from libtoolapi.category import read_all_categories
 from libtoolapi.tag import read_all_tags
 import json
@@ -65,8 +65,23 @@ view_conv_handler = ConversationHandler(
     fallbacks=[CommandHandler("cancel", cancel)],
 )
 
+# VIEW ALL NOTES:
+async def view_all_notes(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    notes = read_all_notes()
 
+    # DEBUG
+    for n in notes:
+        title = n['title']
+        print(f"NOTA ---{title}---:{n}\n")
 
+    messaggio = ""
+    for nota in notes:
+        messaggio += f"<b>{nota['title']}</b>\n{nota['content']}\n\n"
+    
+    await update.message.reply_text(messaggio, parse_mode="HTML")
+    
+
+   
 
 # CREATE NOTE:
 
@@ -133,15 +148,15 @@ async def cn_tags(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def create_note_exec(update: Update, context: ContextTypes.DEFAULT_TYPEE):
     context.user_data["tags"] = update.message.text #tags
 
-    #print(f"USER DATA HERE-------:{context.user_data}")
-
-    # verifica dei dati:
-    # qui prossimamente
+    # chiamare services quando sara' pronto
+    
+    # PS: context.user_data e' un dict
     await update.message.reply_text(f"""
     Titolo: {context.user_data['title']}
     \nContenuto: {context.user_data['content']}
     \nCategoria: {context.user_data['category']}
     \nTags: {context.user_data['tags']}
+    \n[DEBUG] User_data: {context.user_data}
 """)
     return ConversationHandler.END
 
