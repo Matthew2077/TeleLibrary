@@ -1,7 +1,6 @@
 from libtoolapi.note import read_note, read_all_notes
 from libtoolapi.category import read_all_categories
 from libtoolapi.tag import read_all_tags
-import json
 from telegram import Update
 from telegram.ext import (
     CommandHandler,
@@ -15,11 +14,11 @@ from telegram.ext import (
 # COMANDO LEGGI NOTA
 STATUS_VIEW_ID = 1 # stato dove il bot aspetta l'utente che scriva l'id
 
-async def view_note_start(update: Update, context: ContextTypes.DEFAULT_TYPEE):
+async def view_note_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Perfavore inserisci l'ID della nota che desideri visualizzare:")
     return STATUS_VIEW_ID
 
-async def view_note_exec(update: Update, context: ContextTypes.DEFAULT_TYPEE):
+async def view_note_exec(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_input = update.message.text
 
     if not user_input.isdigit(): # qui inserire una funzione adatta poi. 
@@ -105,7 +104,7 @@ async def cn_title(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     return STATUS_CREATE_TITLE
 
-async def cn_content(update: Update, context: ContextTypes.DEFAULT_TYPEE):
+async def cn_content(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["title"] = update.message.text  # salva la risposta precedente
     await update.message.reply_text("""Inserisci il contenuto testuale della nota. 
     Puoi scrivere fino a 1000 caratteri, immagini non saranno salvate, links si. """)
@@ -145,7 +144,7 @@ async def cn_tags(update: Update, context: ContextTypes.DEFAULT_TYPE):
     #print(f"SHOW ALL TAGS----------: {tags_list}")
     return STATUS_CREATE_TAGS
 
-async def create_note_exec(update: Update, context: ContextTypes.DEFAULT_TYPEE):
+async def create_note_exec(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["tags"] = update.message.text #tags
 
     # chiamare services quando sara' pronto
@@ -169,6 +168,40 @@ create_conv_handler = ConversationHandler(
         STATUS_CREATE_CONTENT: [MessageHandler(filters.TEXT & ~filters.COMMAND, cn_category)],
         STATUS_CREATE_CATEGORY: [MessageHandler(filters.TEXT & ~filters.COMMAND, cn_tags)], # cn_tags
         STATUS_CREATE_TAGS: [MessageHandler(filters.TEXT & ~filters.COMMAND, create_note_exec)],
+                
+    },
+    fallbacks=[CommandHandler("cancel", cancel)],
+)
+
+
+
+# SEARCH
+
+STATUS_SEARCH = 1
+async def sn_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("""
+    Perfavore inserisci una o piu' parole per iniziare la ricerca
+    NB: Utilizzero' i dati inseriti per cercare un titolo che contenga cio' che cerchi.
+    """)
+    return STATUS_SEARCH
+
+
+async def search_for_notes(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["search"] = update.message.text
+    await update.message.reply_text(context.user_data["search"])
+    return ConversationHandler.END
+
+
+
+
+
+
+
+# CONV HANDLER DI SEARCH FOR NOTES:
+search_conv_handler = ConversationHandler(
+    entry_points=[CommandHandler("search", sn_start)],
+    states={
+        STATUS_SEARCH:   [MessageHandler(filters.TEXT & ~filters.COMMAND, search_for_notes)],
                 
     },
     fallbacks=[CommandHandler("cancel", cancel)],
